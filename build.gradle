@@ -1,0 +1,45 @@
+apply plugin: 'scala'
+apply plugin: 'idea'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile 'org.twitter4j:twitter4j-stream:4.0.2'
+    compile 'org.scala-lang:scala-library:2.10.4'
+    compile 'com.typesafe:config:1.2.1'
+    compile 'org.slf4j:slf4j-log4j12:1.7.9'
+    compile ('org.apache.kafka:kafka_2.10:0.8.1.1') {
+        exclude group: 'com.sun.jmx', module: 'jmxri'
+        exclude group: 'javax.jms', module: 'jms'
+        exclude group: 'com.sun.jdmk', module: 'jmxtools'
+    }
+    testCompile 'junit:junit:4.11'
+}
+
+task run(type: JavaExec, dependsOn: classes) {
+    main = 'net.mkrcah.TweetsToKafkaExample'
+    classpath sourceSets.main.runtimeClasspath
+    classpath configurations.runtime
+}
+
+
+// enable fast scala compiler
+compileScala {
+    scalaCompileOptions.useCompileDaemon = true
+}
+
+// enable incremental scala compilation
+tasks.withType(ScalaCompile) {
+    scalaCompileOptions.useAnt = false
+}
+
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
