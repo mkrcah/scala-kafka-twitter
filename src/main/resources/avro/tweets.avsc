@@ -1,0 +1,9 @@
+{
+	"namespace": "twitter.avro",
+	"type": "record",
+	"name": "Tweets",
+	"fields": [
+		{"name": "name", "type": "string"},
+		{"name": "text", "type": "string"}
+	]
+}
