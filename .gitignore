@@ -75,3 +75,6 @@ project/plugins/project/
 # Scala-IDE specific
 .scala_dependencies
 .worksheet
+
+### Scala Typesafe Config ###
+application.conf

@@ -6,10 +6,10 @@ import kafka.javaapi.producer.Producer
 import kafka.producer.{KeyedMessage, ProducerConfig}
 
 
-object KafkaProducer {
+class KafkaProducer[MessageType] {
 
-  def send(topic: String, message: String): Unit = {
-    val msg = new KeyedMessage[String, String](topic, message)
+  def send(topic: String, message: MessageType): Unit = {
+    val msg = new KeyedMessage[String, MessageType](topic, message)
     kafkaProducer.send(msg)
   }
 
@@ -19,7 +19,7 @@ object KafkaProducer {
     props.put("serializer.class", "kafka.serializer.StringEncoder")
     props.put("request.required.acks", "1")
     val config = new ProducerConfig(props)
-    new Producer[String, String](config)
+    new Producer[String, MessageType](config)
   }
 
 }
