@@ -1,5 +1,5 @@
 
-### Toy project to integrate Kafka, Avro, Twitter and Spark Streaming
+### Example project to integrate Kafka, Avro, Twitter and Spark Streaming
 
 This is WIP.
 
