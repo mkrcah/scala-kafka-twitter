@@ -4,13 +4,13 @@ import java.util.Properties
 
 import kafka.consumer.{Consumer, ConsumerConfig, Whitelist}
 import kafka.message.MessageAndMetadata
-import kafka.serializer.StringDecoder
+import kafka.serializer.{DefaultDecoder, StringDecoder}
 
 object KafkaConsumer {
 
-   def getMessagesFor(topic: String): Stream[MessageAndMetadata[String, String]] = {
+   def getMessagesFor(topic: String): Stream[MessageAndMetadata[String, Array[Byte]]] = {
      val filterByTopic = new Whitelist(topic)
-     val streams = consumer.createMessageStreamsByFilter(filterByTopic, 1, new StringDecoder(), new StringDecoder())
+     val streams = consumer.createMessageStreamsByFilter(filterByTopic, 1, new StringDecoder(), new DefaultDecoder())
      streams(0).toStream
    }
 

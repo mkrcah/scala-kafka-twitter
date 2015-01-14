@@ -16,7 +16,6 @@ class KafkaProducer[MessageType] {
   private val kafkaProducer = {
     val props = new Properties()
     props.put("metadata.broker.list", "localhost:9092")
-    props.put("serializer.class", "kafka.serializer.StringEncoder")
     props.put("request.required.acks", "1")
     val config = new ProducerConfig(props)
     new Producer[String, MessageType](config)

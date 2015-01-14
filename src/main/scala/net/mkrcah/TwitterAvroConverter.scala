@@ -1,18 +1,18 @@
-package net.mkrcah.avro
+package net.mkrcah
 
 import java.io.{ByteArrayOutputStream, File}
 
-import net.mkrcah.Run.Tweet
+import net.mkrcah.Twitter.Tweet
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData.Record
 import org.apache.avro.generic.{GenericDatumReader, GenericDatumWriter, GenericRecord}
 import org.apache.avro.io.{DecoderFactory, EncoderFactory}
 
 
-object TweetsAvro extends App{
+object TwitterAvroConverter {
 
   private val avroSchema = {
-    val filename = "avro/tweets.avsc"
+    val filename = "avro-schemas/tweets.avsc"
     val uri = getClass.getClassLoader.getResource(filename).toURI
     new Schema.Parser().parse(new File(uri))
   }
