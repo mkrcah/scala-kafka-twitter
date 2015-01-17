@@ -9,7 +9,7 @@ import org.apache.avro.generic.{GenericDatumReader, GenericDatumWriter, GenericR
 import org.apache.avro.io.{DecoderFactory, EncoderFactory}
 
 
-object TwitterAvroConverter {
+object TwitterAvroCodec {
 
   private val avroSchema = {
     val filename = "avro-schemas/tweets.avsc"
@@ -20,7 +20,7 @@ object TwitterAvroConverter {
   private val writer = new GenericDatumWriter[GenericRecord](avroSchema)
   private val reader = new GenericDatumReader[GenericRecord](avroSchema)
 
-  def tweetToAvro(t: Tweet): Array[Byte] = {
+  def encode(t: Tweet): Array[Byte] = {
     val out = new ByteArrayOutputStream()
     val encoder = EncoderFactory.get().binaryEncoder(out, null)
 
@@ -37,10 +37,11 @@ object TwitterAvroConverter {
     }
   }
 
-  def avroToStr(bytes: Array[Byte]): String = {
+  def decode(bytes: Array[Byte]): String = {
     val decoder = DecoderFactory.get().binaryDecoder(bytes, null)
-    val r = reader.read(null, decoder)
-    r.toString
+    val record = reader.read(null, decoder)
+    // todo: GenericRecord in not serializable
+    record.get("text").toString
   }
 
 }

@@ -12,6 +12,8 @@ dependencies {
     compile 'com.typesafe:config:1.2.1'
     compile 'org.slf4j:slf4j-log4j12:1.7.9'
     compile 'org.apache.avro:avro:1.7.7'
+    compile "org.apache.spark:spark-streaming_2.10:1.2.0"
+    compile "org.apache.spark:spark-streaming-kafka_2.10:1.2.0"
     compile ('org.apache.kafka:kafka_2.10:0.8.1.1') {
         exclude group: 'com.sun.jmx', module: 'jmxri'
         exclude group: 'javax.jms', module: 'jms'
@@ -20,11 +22,18 @@ dependencies {
     testCompile 'junit:junit:4.11'
 }
 
-task run(type: JavaExec, dependsOn: classes) {
-    main = 'net.mkrcah.Run'
+task runProducer(type: JavaExec, dependsOn: classes) {
+    main = 'net.mkrcah.TwitterProducer'
     classpath sourceSets.main.runtimeClasspath
     classpath configurations.runtime
 }
+
+task runConsumer(type: JavaExec, dependsOn: classes) {
+    main = 'net.mkrcah.SparkConsumer'
+    classpath sourceSets.main.runtimeClasspath
+    classpath configurations.runtime
+}
+
 
 
 // enable fast scala compiler
@@ -37,10 +46,3 @@ tasks.withType(ScalaCompile) {
     scalaCompileOptions.useAnt = false
 }
 
-
-idea {
-    module {
-        downloadJavadoc = true
-        downloadSources = true
-    }
-}
