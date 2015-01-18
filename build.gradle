@@ -1,3 +1,7 @@
+plugins {
+    id "com.commercehub.gradle.plugin.avro" version "0.3.4"
+}
+
 apply plugin: 'scala'
 apply plugin: 'idea'
 
@@ -6,30 +10,34 @@ repositories {
     mavenLocal()
 }
 
+def scalaVersion = "2.10"
+
 dependencies {
     compile 'org.twitter4j:twitter4j-stream:4.0.2'
     compile 'org.scala-lang:scala-library:2.10.4'
     compile 'com.typesafe:config:1.2.1'
     compile 'org.slf4j:slf4j-log4j12:1.7.9'
     compile 'org.apache.avro:avro:1.7.7'
-    compile "org.apache.spark:spark-streaming_2.10:1.2.0"
-    compile "org.apache.spark:spark-streaming-kafka_2.10:1.2.0"
-    compile ('org.apache.kafka:kafka_2.10:0.8.1.1') {
+    compile "org.apache.spark:spark-streaming_${scalaVersion}:1.2.0"
+    compile "org.apache.spark:spark-streaming-kafka_${scalaVersion}:1.2.0"
+    compile "com.twitter:bijection-core_${scalaVersion}:0.7.2"
+    compile "com.twitter:bijection-avro_${scalaVersion}:0.7.2"
+    compile ("org.apache.kafka:kafka_${scalaVersion}:0.8.1.1") {
         exclude group: 'com.sun.jmx', module: 'jmxri'
         exclude group: 'javax.jms', module: 'jms'
         exclude group: 'com.sun.jdmk', module: 'jmxtools'
     }
-    testCompile 'junit:junit:4.11'
 }
 
-task runProducer(type: JavaExec, dependsOn: classes) {
-    main = 'net.mkrcah.TwitterProducer'
+
+task produce(type: JavaExec, dependsOn: classes) {
+    main = 'net.mkrcah.KafkaProducerApp'
     classpath sourceSets.main.runtimeClasspath
     classpath configurations.runtime
 }
 
-task runConsumer(type: JavaExec, dependsOn: classes) {
-    main = 'net.mkrcah.SparkConsumer'
+task consume(type: JavaExec, dependsOn: classes) {
+    main = 'net.mkrcah.KafkaConsumerApp'
     classpath sourceSets.main.runtimeClasspath
     classpath configurations.runtime
 }

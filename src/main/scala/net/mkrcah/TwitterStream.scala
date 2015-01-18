@@ -4,9 +4,7 @@ import com.typesafe.config.ConfigFactory
 import twitter4j._
 import twitter4j.conf.{ConfigurationBuilder, Configuration}
 
-object Twitter {
-
-  type Tweet = twitter4j.Status
+object TwitterStream {
 
   private val conf = ConfigFactory.load()
 

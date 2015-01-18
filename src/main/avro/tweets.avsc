@@ -1,7 +1,7 @@
 {
-	"namespace": "twitter.avro",
+	"namespace": "net.mkrcah.avro",
 	"type": "record",
-	"name": "Tweets",
+	"name": "Tweet",
 	"fields": [
 		{"name": "name", "type": "string"},
 		{"name": "text", "type": "string"}

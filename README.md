@@ -13,15 +13,15 @@ Current infrastructure:
 
 2. Start Kafka [(instructions)](http://kafka.apache.org/documentation.html#introduction) in single-node mode on localhost
 
-3. Start TwitterProducer
+3. Start Kafka producer
 ```
-./gradlew runProducer 
+./gradlew produce 
 ```
 This will start to read recent tweets, encode them to Avro and send to the Kafka cluster in binary format (`Array[Byte]`). 
 
-4. Start SparkConsumer
+4. Start Kafka consumer
 ```
- ./gradlew runConsumer
+ ./gradlew consume
 ```
 This will run Spark streaming connected to the Kafka cluster. In 5-second intervals 
 the program reads Avro tweets from Kafka, deserializes the tweet texts to strings 
