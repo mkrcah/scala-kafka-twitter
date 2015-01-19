@@ -6,8 +6,8 @@ apply plugin: 'scala'
 apply plugin: 'idea'
 
 repositories {
-    mavenCentral()
     mavenLocal()
+    mavenCentral()
 }
 
 def scalaVersion = "2.10"
