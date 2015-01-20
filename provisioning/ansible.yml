@@ -1,6 +1,12 @@
 ---
 - hosts: all
   sudo: yes
+  vars:
+    kafka:
+      version: 0.8.1.1
+      scalaVersion: 2.9.2
+      mirror: http://apache.cs.uu.nl
+      installDir: /opt
   tasks:
 
   # Install Oracle JVM
@@ -15,4 +21,12 @@
       name: oracle-java7-installer
       state: latest
 
-  # TODO: Download and start Kafka
+  # Download Kafka
+  - name: Kafka | Ensure Kafka {{kafka.version}} is downloaded
+    get_url:
+      url: "{{kafka.mirror}}/kafka/{{kafka.version}}/kafka_{{kafka.scalaVersion}}-{{kafka.version}}.tgz"
+      dest: "/tmp"
+  - name: Kafka | Ensure tar is extracted
+    command: tar xzf /tmp/kafka_{{kafka.scalaVersion}}-{{kafka.version}}.tgz chdir="{{kafka.installDir}}"
+
+  # TODO: Configure and start ZooKeeper & Kafka
