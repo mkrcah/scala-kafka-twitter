@@ -1,32 +1,85 @@
 ---
 - hosts: all
   sudo: yes
+  gather_facts: no
   vars:
-    kafka:
-      version: 0.8.1.1
-      scalaVersion: 2.9.2
-      mirror: http://apache.cs.uu.nl
-      installDir: /opt
+    kafka_version: 0.8.1.1
+    kafka_build: kafka_2.9.2-{{kafka_version}}
+    kafka_mirror: http://apache.cs.uu.nl
+    kafka_data_dir: /var/data/kafka
   tasks:
 
-  # Install Oracle JVM
-  - name: Java | Ensure the Oracle JVM repository is present
-    apt_repository:
-      repo: ppa:webupd8team/java
-      state: present
-  - name: Java | Ensure the Oracle license is accepted
-    shell: echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
-  - name: Java | Ensure Oracle Java 7 is installed
-    apt:
-      name: oracle-java7-installer
-      state: latest
+  - name: Update apt cache
+    apt: update_cache=yes cache_valid_time=86400
 
-  # Download Kafka
-  - name: Kafka | Ensure Kafka {{kafka.version}} is downloaded
+  # Java
+
+  - name: Ensure Java is installed.
+    apt: pkg=default-jre state=installed
+
+
+  # ---------------------------
+  # ZooKeeper
+  # ---------------------------
+
+  - name: ZooKeeper | Ensure ZooKeeper is installed
+    apt: pkg={{item}} state=installed
+    with_items:
+      - zookeeper
+      - zookeeperd
+
+  - name: ZooKeeper | Ensure myid is set to {{node_seq}}
+    template:
+      src: files/zk/myid
+      dest: /etc/zookeeper/conf/myid
+
+  - name: ZooKeeper | Ensure config is present
+    template: src=files/zk/zoo.cfg dest=/etc/zookeeper/conf/zoo.cfg
+
+  - name: ZooKeeper | Ensure the service is restarted
+    service: name=zookeeper state=restarted enabled=yes
+
+  - name: ZooKeeper | Ensure ZooKeeper is up
+    wait_for: port=2181
+
+
+  # ---------------------------
+  # Kafka
+  # ---------------------------
+
+  - name: Kafka | Ensure group "kafka" exists
+    group: name=kafka state=present
+
+  - name: Kafka | Ensure user "kafka" exists
+    user: name=kafka group=kafka
+
+  - name: Kafka | Ensure {{kafka_build}} tarball is present
     get_url:
-      url: "{{kafka.mirror}}/kafka/{{kafka.version}}/kafka_{{kafka.scalaVersion}}-{{kafka.version}}.tgz"
-      dest: "/tmp"
-  - name: Kafka | Ensure tar is extracted
-    command: tar xzf /tmp/kafka_{{kafka.scalaVersion}}-{{kafka.version}}.tgz chdir="{{kafka.installDir}}"
+      url: "http://apache.cs.uu.nl/kafka/{{kafka_version}}/{{kafka_build}}.tgz"
+      dest: "/tmp/{{kafka_build}}.tgz"
+      owner: kafka
+      group: kafka
 
-  # TODO: Configure and start ZooKeeper & Kafka
+  - name: Kafka | Ensure tar is extracted
+    unarchive: src=/tmp/{{kafka_build}}.tgz dest=/home/kafka copy=no creates=/home/kafka/{{kafka_build}}
+
+  - name: Kafka | Ensure "current" symlink is present
+    file: src=/home/kafka/{{kafka_build}} dest=/home/kafka/current owner=kafka group=kafka state=link
+
+  - name: Kafka | Ensure data directory exists
+    file: path={{kafka_data_dir}} state=directory mode=0755 owner=kafka group=kafka
+
+  - name: Kafka | Ensure config is present
+    template: src=files/kafka/server.properties dest=/home/kafka/current/config/server.properties mode=0644 owner=kafka group=kafka
+
+  - name: Kafka | Ensure init.d script is present
+    copy: src=files/kafka/initd dest=/etc/init.d/kafka mode=0755 force=yes
+
+  - name: Kafka | Ensure log dir is present
+    file: path=/home/kafka/current/logs state=directory mode=0755 owner=kafka group=kafka
+
+  - name: Kafka | Ensure the service is started
+    service: name=kafka state=restarted enabled=yes
+
+  - name: Kafka | Ensure Kafka is up
+    wait_for: port=9092

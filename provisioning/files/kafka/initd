@@ -1,0 +1,87 @@
+#!/bin/bash
+#
+# chkconfig: 345 99 28
+# description: Starts/Stops Kafka
+#
+
+SHUTDOWN_WAIT=20
+NAME="KAFKA"
+
+pid() {
+    echo `ps -fe | grep kafka\.Kafka | grep -v grep | tr -s " "|cut -d" " -f2`
+}
+
+start() {
+    pid=$(pid)
+    if [ -n "$pid" ]
+
+        then
+        echo -e "$NAME is already running (pid: $pid)"
+        return 1
+    else
+        echo -e "Starting $NAME"
+        su kafka -c "/home/kafka/current/bin/kafka-server-start.sh -daemon /home/kafka/current/config/server.properties"
+        status
+    fi
+    return 0
+}
+
+status() {
+    pid=$(pid)
+    if [ -n "$pid" ]; then
+        echo -e "$NAME is running with pid: $pid"
+        return 0
+    else
+        echo -e "$NAME is not running"
+        return 1
+    fi
+}
+
+stop() {
+    pid=$(pid)
+    if [ -n "$pid" ]; then
+        echo -e "Stoping $NAME"
+        kill $pid
+        let kwait=$SHUTDOWN_WAIT
+        count=0;
+        until [ `ps -p $pid | grep -c $pid` = '0' ] || [ $count -gt $kwait ]
+        do
+            echo "."
+            sleep 1
+            let count=$count+1;
+        done
+        if [ $count -gt $kwait ]; then
+            echo -n -e "\nkilling processes which didn't stop after $SHUTDOWN_WAIT seconds"
+            kill -9 $pid
+        fi
+    else
+        echo -e "$NAME is not running"
+    fi
+    return 0
+}
+
+case $1 in
+
+    start)
+        start
+    ;;
+
+    stop)
+        stop
+    ;;
+
+    restart)
+        stop
+        start
+    ;;
+
+    status)
+        status
+    ;;
+
+    *)
+        echo -e $USAGE
+    ;;
+
+esac
+exit $?

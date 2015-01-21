@@ -9,13 +9,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   memory_mb = 256
 
-  cluster = {
+  nodes = {
     'node-1' => "192.168.5.100",
     'node-2' => "192.168.5.101",
-    'node-3' => "192.168.5.102",
+    'node-3' => "192.168.5.102"
   }
 
-  cluster.each_with_index do |(short_name, ip), idx|
+  nodes.each_with_index do |(short_name, ip), idx|
 
     config.vm.define short_name do |host|
 
@@ -28,8 +28,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       host.vm.provision :ansible do |ansible|
         ansible.playbook = "provisioning/ansible.yml"
         ansible.extra_vars = {
-          cluster_node_seq: idx + 1,
-          cluster_ip_addresses: cluster.values
+          nodes: nodes.values,
+          node_seq: idx + 1
         }
       end
     end
