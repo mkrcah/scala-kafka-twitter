@@ -7,7 +7,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "precise64" # Ubuntu 12.04
 
-  memory_mb = 256
+  memory_mb = 768
 
   nodes = {
     'node-1' => "192.168.5.100",
@@ -29,7 +29,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         ansible.playbook = "provisioning/ansible.yml"
         ansible.extra_vars = {
           nodes: nodes.values,
-          node_seq: idx + 1
+          node_seq: idx
         }
       end
     end

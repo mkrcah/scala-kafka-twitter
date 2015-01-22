@@ -3,6 +3,7 @@ package net.mkrcah
 import java.util.Properties
 
 import com.twitter.bijection.avro.SpecificAvroCodecs.{toJson, toBinary}
+import com.typesafe.config.ConfigFactory
 import kafka.javaapi.producer.Producer
 import kafka.producer.{KeyedMessage, ProducerConfig}
 import net.mkrcah.TwitterStream.OnTweetPosted
@@ -11,11 +12,13 @@ import twitter4j.{Status, FilterQuery}
 
 object KafkaProducerApp {
 
+  private val conf = ConfigFactory.load()
+
   val KafkaTopic = "tweets"
 
   val kafkaProducer = {
     val props = new Properties()
-    props.put("metadata.broker.list", "localhost:9092")
+    props.put("metadata.broker.list", conf.getString("kafka.brokers"))
     props.put("request.required.acks", "1")
     val config = new ProducerConfig(props)
     new Producer[String, Array[Byte]](config)

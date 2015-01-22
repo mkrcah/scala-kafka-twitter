@@ -80,6 +80,3 @@
 
   - name: Kafka | Ensure the service is started
     service: name=kafka state=restarted enabled=yes
-
-  - name: Kafka | Ensure Kafka is up
-    wait_for: port=9092
